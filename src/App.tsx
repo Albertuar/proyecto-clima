@@ -7,6 +7,8 @@ import Forecast, { ForecastData } from "./components/Forecast";
 import getFormattedWeatherData from "./services/weatherService";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import Modal from 'react-modal';
+import { BiXCircle } from "react-icons/bi";
 
 interface Query {
   q?: string;
@@ -45,7 +47,9 @@ const App = () => {
   const [query, setQuery] = useState<Query>({ q: "London" });
   const [units, setUnits] = useState<string>("metric");
   const [weather, setWeather] = useState<WeatherData | null>(null);
-  const [selectedDay, setSelectedDay] = useState<ForecastData | null>(null);
+  const [weekleyForecast, setWeeklyForecast] = useState<ForecastData | null>(null);
+  const [selectedDay, setSelectedDay] = useState< null>(null);
+
 
   const getWeather = async () => {
     const cityName = query.q ? query.q : "current location";
@@ -82,8 +86,9 @@ const App = () => {
   const formatBackground = () => {
     if (!weather) return 'from-cyan-600 to-blue-700';
     const threshold = units === 'metric' ? 20 : 60;
-    return weather.temp <= threshold ? 'from-cyan-600 to-blue-700' : "from-yellow-600 to-orange-700";
-  }
+    return weather.temp <= threshold ? 'from-cyan-600 to-blue-700' : 'from-yellow-600 to-orange-700';
+  };
+  
   return (
     <div className={`min-h-screen flex flex-col bg-gradient-to-br ${formatBackground()} shadow-xl shadow-gray-400`}>
       <div className="mx-auto max-w-screen-lg mt-4 py-5 px-4 sm:px-8 md:px-12 lg:px-32 flex-grow">
@@ -95,11 +100,22 @@ const App = () => {
             <TimeAndLocation weather={weather} />
             <TempAndDetails weather={weather} units={units} />
             <Forecast title='Previsión cada 3 horas' data={weather.hourly} />
-            <Forecast
-          title="Previsión semanal"
-          data={weather.daily}
-          onSelectDay={handleSelectDay}
-        />
+            <Forecast 
+              title="Previsión semanal"
+              data={weather.daily}
+              onSelectDay={handleSelectDay}
+            />
+            <Modal 
+              className={`h-auto md:h-[80vh] w-full md:w-[80%] lg:w-[60%] flex flex-col bg-gradient-to-br ${formatBackground()} bg-opacity-50 hover:bg-opacity-70 transition-all duration-300 rounded-lg p-4 mx-auto backdrop-blur-sm`}
+              isOpen={selectedDay !== null}
+              onRequestClose={() => setSelectedDay(null)}
+              //style={customStyles}//
+              contentLabel="Example Modal">
+             <BiXCircle 
+          size={30} 
+          className="cursor-pointer text-white transition ease-out hover:scale-125"
+          onClick={() => setSelectedDay(null)}/>
+            </Modal>
           </>
         )}
       </div>
