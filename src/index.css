@@ -1,0 +1,17 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    html {
+        font-family: "Poppins", sans-serif;
+        color: white;
+        background-color: #1a202c; 
+    }
+
+    .modalButton {
+        @apply text-red-500 border border-gray-700 rounded-lg p-2 transition-all duration-300 hover:bg-gray-700 hover:text-white;
+    }
+}
