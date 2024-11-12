@@ -135,12 +135,21 @@ const formatForecastWeather = (secs: number, offset: number, data: WeatherInfo[]
         }))
         .slice(0, 5);
 
-    const daily = data.filter((f) => f.dt_txt.slice(-8) === "00:00:00").map(f => ({
-        temp: f.main.temp,
-        title: formatToLocalTime(f.dt, offset, 'ccc'),
-        icon: iconURLFromCode(f.weather[0].icon),
-        date: f.dt_txt,
-    }));
+    const daily = data
+        .filter((f) => f.dt_txt.slice(-8) === "00:00:00")
+        .map(f => ({
+            temp: f.main.temp,
+            temp_min: f.main.temp_min,
+            temp_max: f.main.temp_max,
+            title: formatToLocalTime(f.dt, offset, 'ccc'),
+            icon: iconURLFromCode(f.weather[0].icon),
+            date: f.dt_txt,
+            humidity: f.main.humidity,
+            windSpeed: f.wind.speed,
+            details: f.weather[0].main,
+            sunrise: formatToLocalTime(f.sys.sunrise, offset, 'hh:mm a'),
+            sunset: formatToLocalTime(f.sys.sunset, offset, 'hh:mm a'),
+        }));
 
     return { hourly, daily };
 };

@@ -7,8 +7,8 @@ import Forecast, { ForecastData } from "./components/Forecast";
 import getFormattedWeatherData from "./services/weatherService";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import Modal from 'react-modal';
-import { BiXCircle } from "react-icons/bi";
+import WeatherModal from "./components/WeatherModal";
+
 
 interface Query {
   q?: string;
@@ -17,13 +17,17 @@ interface Query {
 }
 
 interface DailyForecast {
-  temp: {
-    day: number; 
-    night: number; 
-  };
+  temp: number;
+    temp_min: number;
+    temp_max: number;
   title: string; 
   icon: string; 
   date: string; 
+  details?: string; // Que se ven reflejadas aqui para mostrarlas
+  humidity?: number; 
+  windSpeed?: number;
+  sunrise?: string;
+    sunset?: string; 
 }
 
 interface WeatherData {
@@ -47,48 +51,52 @@ const App = () => {
   const [query, setQuery] = useState<Query>({ q: "London" });
   const [units, setUnits] = useState<string>("metric");
   const [weather, setWeather] = useState<WeatherData | null>(null);
-  const [weekleyForecast, setWeeklyForecast] = useState<ForecastData | null>(null);
-  const [selectedDay, setSelectedDay] = useState< null>(null);
-
+  const [selectedDay, setSelectedDay] = useState<DailyForecast | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const getWeather = async () => {
-    const cityName = query.q ? query.q : "current location";
-    toast.info(`Clima en ${capitalizeFirstLetter(cityName)}`);
-  
+    const cityName = query.q ? query.q : "ubicación actual";
+    toast.info(`Cargando clima para ${capitalizeFirstLetter(cityName)}`);
     try {
       const data = await getFormattedWeatherData({ ...query, units });
-      toast.success(`Datos meteorológicos obtenidos ${data.name}, ${data.country}`);
-      
-      // Establece los datos meteorológicos generales
       setWeather(data);
-  
-      // Usa selectedDay para obtener y mostrar los datos del día seleccionado
-      const dayData = selectedDay || data.daily[0];  // Si selectedDay no está definido, usa el primer día como predeterminado
-      console.log("Datos del día seleccionado:", dayData);
-  
-      setSelectedDay(dayData);  // Asegura que selectedDay se mantenga actualizado
-  
+      toast.success(`Clima obtenido para ${data.name}, ${data.country}`);
     } catch (error) {
-      toast.error("Error al obtener los datos meteorológicos.");
-      console.error(error);
+      toast.error("Error al obtener el clima.");
     }
   };
 
-  const handleSelectDay = (day: ForecastData) => {
+  const handleOpenModal = (day: DailyForecast) => {
     setSelectedDay(day);
-    console.log("Día seleccionado:", day);
+    setIsModalOpen(true);
   };
-  
+
+  const handleCloseModal = () => {
+    setSelectedDay(null);
+    setIsModalOpen(false);
+  };
+
+  const navigateDay = (direction: "previous" | "next") => {
+    if (!weather || !selectedDay) return;
+
+    const currentIndex = weather.daily.findIndex(day => day === selectedDay);
+    const newIndex = direction === "previous" ? currentIndex - 1 : currentIndex + 1;
+
+    if (newIndex >= 0 && newIndex < weather.daily.length) {
+      setSelectedDay(weather.daily[newIndex]);
+    }
+  };
+
   useEffect(() => {
     getWeather();
   }, [query, units]);
 
   const formatBackground = () => {
-    if (!weather) return 'from-cyan-600 to-blue-700';
-    const threshold = units === 'metric' ? 20 : 60;
-    return weather.temp <= threshold ? 'from-cyan-600 to-blue-700' : 'from-yellow-600 to-orange-700';
+    if (!weather) return "from-cyan-600 to-blue-700";
+    const threshold = units === "metric" ? 20 : 60;
+    return weather.temp <= threshold ? "from-cyan-600 to-blue-700" : "from-yellow-600 to-orange-700";
   };
-  
+
   return (
     <div className={`min-h-screen flex flex-col bg-gradient-to-br ${formatBackground()} shadow-xl shadow-gray-400`}>
       <div className="mx-auto max-w-screen-lg mt-4 py-5 px-4 sm:px-8 md:px-12 lg:px-32 flex-grow">
@@ -99,29 +107,28 @@ const App = () => {
           <>
             <TimeAndLocation weather={weather} />
             <TempAndDetails weather={weather} units={units} />
-            <Forecast title='Previsión cada 3 horas' data={weather.hourly} />
-            <Forecast 
+            <Forecast title="Previsión cada 3 horas" data={weather.hourly} />
+            <Forecast
               title="Previsión semanal"
               data={weather.daily}
-              onSelectDay={handleSelectDay}
+              onSelectDay={handleOpenModal}
             />
-            <Modal 
-              className={`h-auto md:h-[80vh] w-full md:w-[80%] lg:w-[60%] flex flex-col bg-gradient-to-br ${formatBackground()} bg-opacity-50 hover:bg-opacity-70 transition-all duration-300 rounded-lg p-4 mx-auto backdrop-blur-sm`}
-              isOpen={selectedDay !== null}
-              onRequestClose={() => setSelectedDay(null)}
-              //style={customStyles}//
-              contentLabel="Example Modal">
-             <BiXCircle 
-          size={30} 
-          className="cursor-pointer text-white transition ease-out hover:scale-125"
-          onClick={() => setSelectedDay(null)}/>
-            </Modal>
+            <WeatherModal
+              isOpen={isModalOpen}
+              onClose={handleCloseModal}
+              selectedDay={selectedDay}
+              navigateDay={navigateDay}
+              formatBackground={formatBackground}
+              isFirstDay={selectedDay ? weather.daily.indexOf(selectedDay) === 0 : true}
+              isLastDay={selectedDay ? weather.daily.indexOf(selectedDay) === weather.daily.length - 1 : true}
+            />
           </>
         )}
       </div>
-      <ToastContainer autoClose={2500} hideProgressBar={true} theme="colored" />
+      <ToastContainer position="top-left" autoClose={2500} hideProgressBar={true} theme="colored" draggable="mouse" stacked limit={2} />
     </div>
   );
 };
 
 export default App;
+

@@ -66,7 +66,7 @@ const Inputs: React.FC<InputsProps> = ({ setQuery, setUnits }) => {
           onChange={handleInputChange} 
           type="text"
           placeholder="Especifique la ciudad..."
-          className="text-gray-800 text-xl font-light p-2 w-full shadow-xl capitalize focus:outline-none placeholder:text-gray-500"
+          className="text-gray-800 text-xl font-light p-2 w-full shadow-xl capitalize focus:outline-none rounded-md border placeholder:text-gray-500"
         />
         <BiSearch 
           size={30} 
