@@ -150,7 +150,7 @@ const formatForecastWeather = (secs: number, offset: number, data: WeatherInfo[]
             sunrise: formatToLocalTime(f.sys.sunrise, offset, 'hh:mm a'),
             sunset: formatToLocalTime(f.sys.sunset, offset, 'hh:mm a'),
         }));
-
+        
     return { hourly, daily };
 };
 
