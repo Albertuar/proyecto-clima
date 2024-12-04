@@ -3,133 +3,68 @@ import { BiSolidDropletHalf } from "react-icons/bi";
 import { FiWind } from "react-icons/fi";
 import { GiSunrise, GiSunset } from "react-icons/gi";
 import { MdKeyboardArrowUp, MdKeyboardArrowDown } from "react-icons/md";
+import React from "react";
 
-interface VerticalDetail {
-  id: number;
-  Icon: React.ElementType;
-  title: string;
-  value: string;
-}
-
-interface HorizontalDetail {
-  id: number;
-  Icon: React.ElementType;
-  title: string;
-  value: string;
-}
-
-interface WeatherProps {
-  details: string;
-  icon: string;
-  temp: number;
-  temp_min: number;
-  temp_max: number;
-  sunrise: string;
-  sunset: string;
-  speed: number;
-  humidity: number;
-  feels_like: number;
-}
-
-interface TempAndDetailsProps {
-  weather: WeatherProps;
-  unit: string;
-}
+const DetailItem: React.FC<{ Icon: React.ElementType; title: string; value: string }> = React.memo(
+  ({ Icon, title, value }) => (
+    <li className="flex items-center text-sm">
+      <Icon size={18} className="mr-1" />
+      <span>{title}:</span>
+      <span className="font-medium ml-1">{value}</span>
+    </li>
+  )
+);
 
 const TempAndDetails: React.FC<TempAndDetailsProps> = ({ weather, unit }) => {
-  const {
-    details,
-    icon,
-    temp,
-    temp_min,
-    temp_max,
-    sunrise,
-    sunset,
-    speed,
-    humidity,
-    feels_like,
-  } = weather;
+  const { details, icon, temp, temp_min, temp_max, sunrise, sunset, speed, humidity, feels_like } =
+    weather;
 
-  const verticalDetails: VerticalDetail[] = [
-    {
-      id: 1,
-      Icon: FaThermometerEmpty,
-      title: "Sensación Térmica",
-      value: `${feels_like.toFixed()}º`,
-    },
-    {
-      id: 2,
-      Icon: BiSolidDropletHalf,
-      title: "Humedad",
-      value: `${humidity.toFixed()}%`,
-    },
-    {
-      id: 3,
-      Icon: FiWind,
-      title: "Viento",
-      value: `${speed.toFixed()} ${unit === 'metric' ? "km/h" : 'm/s'}`,
-    },
-  ];
+  const feelsLike = `${feels_like.toFixed()}º`;
+  const humidityText = `${humidity.toFixed()}%`;
+  const windSpeed = `${speed.toFixed()} ${unit === "metric" ? "km/h" : "m/s"}`;
+  const tempMax = `${temp_max.toFixed()}º`;
+  const tempMin = `${temp_min.toFixed()}º`;
+  const tempCurrent = `${temp.toFixed()}º`;
 
-  const horizontalDetails: HorizontalDetail[] = [
-    {
-      id: 1,
-      Icon: GiSunrise,
-      title: "Amanece",
-      value: sunrise,
-    },
-    {
-      id: 2,
-      Icon: GiSunset,
-      title: "Ocaso",
-      value: sunset,
-    },
-    {
-      id: 3,
-      Icon: MdKeyboardArrowUp,
-      title: "Temp Max",
-      value: `${temp_max.toFixed()}º`,
-    },
-    {
-      id: 4, 
-      Icon: MdKeyboardArrowDown,
-      title: "Temp Min",
-      value: `${temp_min.toFixed()}º`,
-    },
-  ];
+  const verticalDetails = React.useMemo(
+    () => [
+      { id: 1, Icon: FaThermometerEmpty, title: "Sensación Térmica", value: feelsLike },
+      { id: 2, Icon: BiSolidDropletHalf, title: "Humedad", value: humidityText },
+      { id: 3, Icon: FiWind, title: "Viento", value: windSpeed },
+    ],
+    [feelsLike, humidityText, windSpeed]
+  );
+
+  const horizontalDetails = React.useMemo(
+    () => [
+      { id: 1, Icon: GiSunrise, title: "Amanece", value: sunrise },
+      { id: 2, Icon: GiSunset, title: "Ocaso", value: sunset },
+      { id: 3, Icon: MdKeyboardArrowUp, title: "Temp Max", value: tempMax },
+      { id: 4, Icon: MdKeyboardArrowDown, title: "Temp Min", value: tempMin },
+    ],
+    [sunrise, sunset, tempMax, tempMin]
+  );
 
   return (
-    <div className="p-4">
+    <section className="p-4" aria-labelledby="weather-details-heading">
       <div className="flex items-center justify-center py-6 text-xl text-cyan-300">
         <p>{details}</p>
       </div>
       <div className="flex flex-col md:flex-row items-center justify-between py-3 text-xl">
-        <img src={icon} alt="weather icon" className="w-20" />
-        <p className="text-5xl">{`${temp.toFixed()}º`}</p>
-
-        <div className="flex flex-col space-y-3 items-start">
-          {verticalDetails.map(({ id, Icon, title, value }) => (
-            <div key={id} className="flex font-light text-sm items-center justify-center">
-              <Icon size={18} className="mr-1" />
-              {`${title}:`}
-              <span className="font-medium ml-1">{value}</span>
-            </div>
+        <img src={icon} alt={`Ícono del clima: ${details}`} className="w-20" />
+        <p className="text-5xl">{tempCurrent}</p>
+        <ul className="flex flex-col space-y-3 items-start">
+          {verticalDetails.map(({ id, ...props }) => (
+            <DetailItem key={id} {...props} />
           ))}
-        </div>
+        </ul>
       </div>
-
-      <div className="flex flex-col md:flex-row items-center justify-center space-x-10 text-sm py-3">
-        {horizontalDetails.map(({ id, Icon, title, value }) => (
-          <div key={id} className="flex flex-row items-center mb-2 md:mb-0">
-            <Icon size={30} />
-            <p className="font-light ml-1">
-              {`${title}:`}
-              <span className="font-medium ml-1">{value}</span>
-            </p>
-          </div>
+      <ul className="flex flex-col md:flex-row items-center justify-center space-x-10 text-sm py-3">
+        {horizontalDetails.map(({ id, ...props }) => (
+          <DetailItem key={id} {...props} />
         ))}
-      </div>
-    </div>
+      </ul>
+    </section>
   );
 };
 

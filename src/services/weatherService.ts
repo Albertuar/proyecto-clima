@@ -37,7 +37,6 @@ interface WeatherInfo {
     timezone: number;
 }
 
-
 interface FormattedWeatherData {
     temp: number;
     feels_like: number;

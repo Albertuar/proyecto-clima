@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import Sidebar from './Sidebar';
+import React, { useState, useEffect, useCallback, useRef } from "react";
+import Sidebar from "./Sidebar";
+import { BiListUl } from "react-icons/bi";
 
-interface City {
+export interface City {
   id: number;
   name: string;
 }
@@ -13,41 +14,82 @@ interface TopButtonsProps {
 const TopButtons: React.FC<TopButtonsProps> = ({ setQuery }) => {
   const [favoriteCities, setFavoriteCities] = useState<City[]>([]);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const sidebarRef = useRef<HTMLDivElement | null>(null);
 
+  // Cargar favoritos desde localStorage
   useEffect(() => {
-    const storedCities = localStorage.getItem('favoriteCities');
+    const storedCities = localStorage.getItem("favoriteCities");
     if (storedCities) {
       setFavoriteCities(JSON.parse(storedCities));
     }
   }, []);
 
+  // Guardar favoritos en localStorage
   useEffect(() => {
-    localStorage.setItem('favoriteCities', JSON.stringify(favoriteCities));
+    localStorage.setItem("favoriteCities", JSON.stringify(favoriteCities));
   }, [favoriteCities]);
 
-  const addCityToFavorites = (cityName: string) => {
-    if (cityName.trim() && !favoriteCities.some(city => city.name.toLowerCase() === cityName.toLowerCase())) {
-      const newCity: City = { id: Date.now(), name: cityName };
-      setFavoriteCities([...favoriteCities, newCity]);
+  // Agregar ciudad a favoritos
+  const addCityToFavorites = useCallback(
+    (cityName: string) => {
+      const trimmedCity = cityName.trim();
+      if (
+        trimmedCity &&
+        !favoriteCities.some(
+          (city) => city.name.toLowerCase() === trimmedCity.toLowerCase()
+        )
+      ) {
+        const newCity: City = { id: Date.now(), name: trimmedCity };
+        setFavoriteCities((prevCities) => [...prevCities, newCity]);
+      }
+    },
+    [favoriteCities]
+  );
+
+  // Eliminar ciudad de favoritos
+  const removeCityFromFavorites = useCallback(
+    (id: number) => {
+      setFavoriteCities((prevCities) =>
+        prevCities.filter((city) => city.id !== id)
+      );
+    },
+    []
+  );
+
+  // Alternar visibilidad del Sidebar
+  const toggleSidebar = useCallback(() => {
+    setIsSidebarOpen((prevState) => !prevState);
+  }, []);
+
+  // Manejo de cierre con tecla "Escape"
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (e.key === "Escape" && isSidebarOpen) {
+        setIsSidebarOpen(false);
+      }
+    },
+    [isSidebarOpen]
+  );
+
+  // Enfocar el Sidebar al abrirlo
+  useEffect(() => {
+    if (isSidebarOpen) {
+      sidebarRef.current?.focus();
     }
-  };
-
-  const removeCityFromFavorites = (id: number) => {
-    setFavoriteCities(favoriteCities.filter(city => city.id !== id));
-  };
-
-  const toggleSidebar = () => {
-    setIsSidebarOpen(!isSidebarOpen);
-  };
+  }, [isSidebarOpen]);
 
   return (
-    <div className="flex flex-col items-center my-6 space-y-4">
-      {/* Botón para abrir el Sidebar */}
+    <div className="relative flex items-center gap-2 p-2">
+      {/* Botón para abrir/cerrar el Sidebar */}
       <button
+        className="flex items-center gap-2 text-white hover:scale-105 transition ease-out"
         onClick={toggleSidebar}
-        className="text-base font-medium text-white px-4 py-2 rounded-md transition ease-in hover:scale-125"
+        aria-expanded={isSidebarOpen}
+        aria-controls="favorites-sidebar"
+        aria-label="Abrir lista de ciudades favoritas"
       >
-        Ver Favoritos
+        <BiListUl size={28} />
+        <span className="text-sm font-medium sm:inline">Favoritos</span>
       </button>
 
       {/* Sidebar */}
@@ -55,12 +97,25 @@ const TopButtons: React.FC<TopButtonsProps> = ({ setQuery }) => {
         favoriteCities={favoriteCities}
         onSelectCity={(cityName) => setQuery({ q: cityName })}
         onRemoveCity={removeCityFromFavorites}
-        onAddCity={addCityToFavorites} // Pasa la función de agregar ciudad desde Sidebar
+        onAddCity={addCityToFavorites}
         isOpen={isSidebarOpen}
         onClose={toggleSidebar}
       />
+
+      {/* Contenedor invisible para accesibilidad (cerrar con teclado) */}
+      {isSidebarOpen && (
+        <div
+          id="favorites-sidebar"
+          ref={sidebarRef}
+          tabIndex={-1}
+          role="dialog"
+          aria-label="Lista de ciudades favoritas"
+          className="absolute inset-0 focus:outline-none"
+          onKeyDown={handleKeyDown}
+        />
+      )}
     </div>
   );
 };
 
-export default TopButtons;
+export default React.memo(TopButtons);

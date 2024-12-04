@@ -1,30 +1,37 @@
-import React from 'react';
+import React from "react";
 
 interface WeatherProps {
   formattedLocalTime: string;
-  name: string;
-  country: string;
+  location: string; // Precalculado: "name, country"
 }
 
 interface TimeAndLocationProps {
   weather: WeatherProps;
 }
 
-const TimeAndLocation: React.FC<TimeAndLocationProps> = ({ 
-  weather: { formattedLocalTime, name, country },
-}) => {
-  return (
-    <div className="flex flex-col items-center my-6">
-      <p className="text-base sm:text-xl font-extralight">
-        {formattedLocalTime}
-      </p>
+const TimeAndLocation: React.FC<TimeAndLocationProps> = React.memo(
+  ({ weather: { formattedLocalTime, location } }) => {
+    return (
+      <div className="flex flex-col items-center my-6" aria-labelledby="location-header">
+        {/* Hora local */}
+        <p
+          id="local-time"
+          className="text-base sm:text-xl font-extralight"
+          aria-live="polite"
+        >
+          {formattedLocalTime}
+        </p>
 
-      <p className="text-lg sm:text-3xl font-medium mt-2">
-        {`${name}, ${country}`}
-      </p>
-    </div>
-  );
-}
+        {/* Ubicación */}
+        <h1
+          id="location-header"
+          className="text-lg sm:text-3xl font-medium mt-2"
+        >
+          {location}
+        </h1>
+      </div>
+    );
+  }
+);
 
 export default TimeAndLocation;
-
