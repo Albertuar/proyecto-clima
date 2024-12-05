@@ -1,12 +1,12 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import Inputs from "./components/Inputs";
 import TopButtons from "./components/TopButtons";
 import TimeAndLocation from "./components/TimeAndLocation";
 import TempAndDetails from "./components/TempAndDetails";
 import Forecast, { ForecastData } from "./components/Forecast";
 import getFormattedWeatherData from "./services/weatherService";
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import WeatherModal from "./components/WeatherModal";
 
 interface Query {
@@ -33,7 +33,7 @@ interface WeatherData {
   name: string;
   country: string;
   temp: number;
-  formattedLocalTime: string; // Agregado aquí
+  formattedLocalTime: string;
   hourly: Array<{
     temp: number;
     title: string;
@@ -43,10 +43,8 @@ interface WeatherData {
   daily: DailyForecast[];
 }
 
-
-const capitalizeFirstLetter = (string: string) => {
-  return string.charAt(0).toUpperCase() + string.slice(1);
-};
+const capitalizeFirstLetter = (string: string) =>
+  string.charAt(0).toUpperCase() + string.slice(1);
 
 const App = () => {
   const [query, setQuery] = useState<Query>({ q: "London" });
@@ -82,7 +80,8 @@ const App = () => {
       if (!weather || !selectedDay) return;
 
       const currentIndex = weather.daily.findIndex(day => day === selectedDay);
-      const newIndex = direction === "previous" ? currentIndex - 1 : currentIndex + 1;
+      const newIndex =
+        direction === "previous" ? currentIndex - 1 : currentIndex + 1;
 
       if (newIndex >= 0 && newIndex < weather.daily.length) {
         setSelectedDay(weather.daily[newIndex]);
@@ -98,8 +97,20 @@ const App = () => {
   const formatBackground = useCallback(() => {
     if (!weather) return "from-cyan-600 to-blue-700";
     const threshold = units === "metric" ? 20 : 60;
-    return weather.temp <= threshold ? "from-cyan-600 to-blue-700" : "from-yellow-600 to-orange-700";
+    return weather.temp <= threshold
+      ? "from-cyan-600 to-blue-700"
+      : "from-yellow-600 to-orange-700";
   }, [weather, units]);
+
+  const location = useMemo(
+    () => `${weather?.name || ""}, ${weather?.country || ""}`,
+    [weather]
+  );
+
+  const formattedLocalTime = useMemo(
+    () => weather?.formattedLocalTime || "",
+    [weather]
+  );
 
   return (
     <div
@@ -107,20 +118,18 @@ const App = () => {
       role="main"
       aria-live="polite"
     >
-      {/* Contenedor principal para los contenidos */}
       <div className="mx-auto max-w-screen-lg mt-4 py-5 px-4 sm:px-8 md:px-12 lg:px-32 flex flex-col min-h-full">
         <TopButtons setQuery={setQuery} aria-label="Botones principales de búsqueda" />
         <Inputs setQuery={setQuery} setUnits={setUnits} aria-label="Entrar ubicación y unidades" />
-  
+
         {weather && (
           <>
             <TimeAndLocation
               weather={{
-                formattedLocalTime: weather.formattedLocalTime,
-                location: `${weather.name}, ${weather.country}`,
+                formattedLocalTime,
+                location,
               }}
             />
-
             <TempAndDetails weather={weather} units={units} aria-live="polite" />
             <Forecast
               title="Previsión cada 3 horas"
@@ -161,7 +170,6 @@ const App = () => {
       />
     </div>
   );
-  
 };
 
 export default App;

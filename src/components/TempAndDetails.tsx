@@ -1,9 +1,9 @@
+import React, { useMemo } from "react";
 import { FaThermometerEmpty } from "react-icons/fa";
 import { BiSolidDropletHalf } from "react-icons/bi";
 import { FiWind } from "react-icons/fi";
 import { GiSunrise, GiSunset } from "react-icons/gi";
 import { MdKeyboardArrowUp, MdKeyboardArrowDown } from "react-icons/md";
-import React from "react";
 
 const DetailItem: React.FC<{ Icon: React.ElementType; title: string; value: string }> = React.memo(
   ({ Icon, title, value }) => (
@@ -15,9 +15,33 @@ const DetailItem: React.FC<{ Icon: React.ElementType; title: string; value: stri
   )
 );
 
-const TempAndDetails: React.FC<TempAndDetailsProps> = ({ weather, unit }) => {
-  const { details, icon, temp, temp_min, temp_max, sunrise, sunset, speed, humidity, feels_like } =
-    weather;
+const TempAndDetails: React.FC<{
+  weather: {
+    details: string;
+    icon: string;
+    temp: number;
+    temp_min: number;
+    temp_max: number;
+    sunrise: string;
+    sunset: string;
+    speed: number;
+    humidity: number;
+    feels_like: number;
+  };
+  unit: "metric" | "imperial";
+}> = React.memo(({ weather, unit }) => {
+  const {
+    details,
+    icon,
+    temp,
+    temp_min,
+    temp_max,
+    sunrise,
+    sunset,
+    speed,
+    humidity,
+    feels_like,
+  } = weather;
 
   const feelsLike = `${feels_like.toFixed()}º`;
   const humidityText = `${humidity.toFixed()}%`;
@@ -26,7 +50,7 @@ const TempAndDetails: React.FC<TempAndDetailsProps> = ({ weather, unit }) => {
   const tempMin = `${temp_min.toFixed()}º`;
   const tempCurrent = `${temp.toFixed()}º`;
 
-  const verticalDetails = React.useMemo(
+  const verticalDetails = useMemo(
     () => [
       { id: 1, Icon: FaThermometerEmpty, title: "Sensación Térmica", value: feelsLike },
       { id: 2, Icon: BiSolidDropletHalf, title: "Humedad", value: humidityText },
@@ -35,7 +59,7 @@ const TempAndDetails: React.FC<TempAndDetailsProps> = ({ weather, unit }) => {
     [feelsLike, humidityText, windSpeed]
   );
 
-  const horizontalDetails = React.useMemo(
+  const horizontalDetails = useMemo(
     () => [
       { id: 1, Icon: GiSunrise, title: "Amanece", value: sunrise },
       { id: 2, Icon: GiSunset, title: "Ocaso", value: sunset },
@@ -66,6 +90,6 @@ const TempAndDetails: React.FC<TempAndDetailsProps> = ({ weather, unit }) => {
       </ul>
     </section>
   );
-};
+});
 
 export default TempAndDetails;

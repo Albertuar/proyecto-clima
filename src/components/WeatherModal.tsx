@@ -90,9 +90,16 @@ const WeatherModal: React.FC<WeatherModalProps> = ({
 
   const isCold = selectedDay.temp <= 20;
 
+  const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (e.target === e.currentTarget) {
+      onClose();
+    }
+  };
+
   return (
     <div
       className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50"
+      onClick={handleBackdropClick} // Detectar clic fuera del contenido
       aria-hidden={!isOpen}
       role="dialog"
       aria-labelledby="weather-modal-title"
@@ -102,6 +109,7 @@ const WeatherModal: React.FC<WeatherModalProps> = ({
         className={`rounded-lg p-6 max-w-md w-full text-white shadow-lg bg-gradient-to-br ${
           isCold ? "from-cyan-600 to-blue-700" : "from-yellow-600 to-orange-700"
         }`}
+        onClick={(e) => e.stopPropagation()} // Prevenir el cierre al hacer clic dentro
       >
         {/* Encabezado */}
         <div className="flex justify-between items-center mb-4">
