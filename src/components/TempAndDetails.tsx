@@ -8,7 +8,7 @@ import { MdKeyboardArrowUp, MdKeyboardArrowDown } from "react-icons/md";
 const DetailItem: React.FC<{ Icon: React.ElementType; title: string; value: string }> = React.memo(
   ({ Icon, title, value }) => (
     <li className="flex items-center text-sm">
-      <Icon size={18} className="mr-1" />
+      {useMemo(() => <Icon size={18} className="mr-1" />, [Icon])}
       <span>{title}:</span>
       <span className="font-medium ml-1">{value}</span>
     </li>

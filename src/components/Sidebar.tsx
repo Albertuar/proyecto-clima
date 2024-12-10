@@ -42,6 +42,28 @@ const Sidebar: React.FC<SidebarProps> = ({
     [favoriteCities, onSelectCity, onRemoveCity]
   );
 
+  const MemoizedBiXCircle = useMemo(
+    () => (
+      <BiXCircle
+        size={24}
+        className="cursor-pointer text-white transition ease-out hover:scale-125"
+        onClick={onClose}
+      />
+    ),
+    [onClose]
+  );
+
+  const MemoizedBiListPlus = useMemo(
+    () => (
+      <BiListPlus
+        size={28}
+        className="cursor-pointer text-white transition-transform transform hover:scale-125"
+        onClick={handleAddCity}
+      />
+    ),
+    [handleAddCity]
+  );
+
   return (
     <div
       className={`fixed top-0 right-0 h-full w-64 bg-gradient-to-br from-cyan-600 to-blue-700 text-white z-50 transform transition-transform duration-300 rounded-l-lg shadow-lg ${
@@ -51,11 +73,7 @@ const Sidebar: React.FC<SidebarProps> = ({
       {/* Encabezado */}
       <div className="flex items-center justify-between p-4">
         <h2 className="text-lg font-semibold">Favoritos</h2>
-        <BiXCircle
-          size={24}
-          className="cursor-pointer text-white transition ease-out hover:scale-125"
-          onClick={onClose}
-        />
+        {MemoizedBiXCircle}
       </div>
 
       {/* Contenido principal */}
@@ -69,11 +87,7 @@ const Sidebar: React.FC<SidebarProps> = ({
             onChange={(e) => setCityInput(e.target.value)}
             className="text-gray-800 px-4 py-2 rounded-md border border-gray-300 focus:outline-none w-full"
           />
-          <BiListPlus
-            size={28}
-            className="cursor-pointer text-white transition-transform transform hover:scale-125"
-            onClick={handleAddCity}
-          />
+          {MemoizedBiListPlus}
         </div>
 
         {/* Lista de ciudades favoritas */}

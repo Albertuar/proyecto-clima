@@ -1,4 +1,4 @@
-import React from "react";
+import React, { memo } from "react";
 import DailyButton from "./DailyButtons";
 
 export interface ForecastData {
@@ -14,7 +14,7 @@ interface ForecastProps {
   onSelectDay: (day: ForecastData) => void;
 }
 
-const Forecast: React.FC<ForecastProps> = ({ title, data, onSelectDay }) => {
+const Forecast: React.FC<ForecastProps> = memo(({ title, data, onSelectDay }) => {
   const isHourly = React.useMemo(() => title.includes("3 horas"), [title]);
 
   const formatDayOfWeekWithDate = React.useCallback(
@@ -72,7 +72,7 @@ const Forecast: React.FC<ForecastProps> = ({ title, data, onSelectDay }) => {
       </ul>
     </section>
   );
-};
+});
 
 interface ForecastItemProps {
   data: ForecastData & { formattedTitle: string };

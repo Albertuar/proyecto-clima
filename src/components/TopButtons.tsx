@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import React, { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import Sidebar from "./Sidebar";
 import { BiListUl } from "react-icons/bi";
 
@@ -88,7 +88,7 @@ const TopButtons: React.FC<TopButtonsProps> = ({ setQuery }) => {
         aria-controls="favorites-sidebar"
         aria-label="Abrir lista de ciudades favoritas"
       >
-        <BiListUl size={28} />
+        {useMemo(() => <BiListUl size={28} />, [])}
         <span className="text-sm font-medium sm:inline">Favoritos</span>
       </button>
 
