@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 
 interface DailyButtonProps {
   title: string; // Día u Hora
@@ -6,7 +6,7 @@ interface DailyButtonProps {
   temp: number; // Temperatura
 }
 
-const DailyButton: React.FC<DailyButtonProps> = ({ title, icon, temp }) => {
+const DailyButton: React.FC<DailyButtonProps> = memo(({ title, icon, temp }) => {
   return (
     <div className="flex flex-col items-center p-2 rounded-lg">
       <p className="font-medium">{title}</p>
@@ -14,6 +14,6 @@ const DailyButton: React.FC<DailyButtonProps> = ({ title, icon, temp }) => {
       <p className="text-lg">{temp}°C</p>
     </div>
   );
-};
+});
 
 export default DailyButton;

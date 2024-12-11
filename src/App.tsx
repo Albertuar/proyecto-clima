@@ -94,14 +94,6 @@ const App = () => {
     getWeather();
   }, [query, units, getWeather]);
 
-  const formatBackground = useCallback(() => {
-    if (!weather) return "from-cyan-600 to-blue-700";
-    const threshold = units === "metric" ? 20 : 60;
-    return weather.temp <= threshold
-      ? "from-cyan-600 to-blue-700"
-      : "from-yellow-600 to-orange-700";
-  }, [weather, units]);
-
   const location = useMemo(
     () => `${weather?.name || ""}, ${weather?.country || ""}`,
     [weather]
@@ -112,9 +104,28 @@ const App = () => {
     [weather]
   );
 
+  const dailyIcons = useMemo(() => {
+    return weather?.daily.map((day) => ({
+      ...day,
+      iconUrl: `https://openweathermap.org/img/wn/${day.icon}@2x.png`,
+    }));
+  }, [weather?.daily]);
+
+  const backgroundClass = useMemo(() => {
+    if (!weather) return "from-cyan-600 to-blue-700";
+    const threshold = units === "metric" ? 20 : 60;
+    return weather.temp <= threshold
+      ? "from-cyan-600 to-blue-700"
+      : "from-yellow-600 to-orange-700";
+  }, [weather, units]);
+
+  const handleSelectHourlyDay = useCallback((day: ForecastData) => {
+    // Handle the selection of an hourly day if needed
+  }, []);
+
   return (
     <div
-      className={`flex flex-col bg-gradient-to-br ${formatBackground()} shadow-xl shadow-gray-400`}
+      className={`flex flex-col bg-gradient-to-br ${backgroundClass} shadow-xl shadow-gray-400`}
       role="main"
       aria-live="polite"
     >
@@ -134,12 +145,12 @@ const App = () => {
             <Forecast
               title="Previsión cada 3 horas"
               data={weather.hourly}
-              onSelectDay={(day: ForecastData) => {}}
+              onSelectDay={handleSelectHourlyDay}
               aria-label="Previsión por horas"
             />
             <Forecast
               title="Previsión semanal"
-              data={weather.daily}
+              data={dailyIcons}
               onSelectDay={handleOpenModal}
               aria-label="Previsión semanal"
             />
@@ -149,7 +160,7 @@ const App = () => {
               selectedDay={selectedDay}
               hourlyData={weather.hourly}
               navigateDay={navigateDay}
-              formatBackground={formatBackground}
+              formatBackground={backgroundClass}
               isFirstDay={selectedDay ? weather.daily.indexOf(selectedDay) === 0 : true}
               isLastDay={selectedDay ? weather.daily.indexOf(selectedDay) === weather.daily.length - 1 : true}
               name={weather.name}

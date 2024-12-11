@@ -47,6 +47,13 @@ const Forecast: React.FC<ForecastProps> = memo(({ title, data, onSelectDay }) =>
     [data, isHourly, formatHour, formatDayOfWeekWithDate]
   );
 
+  const stableOnSelectDay = React.useCallback(
+    (day: string) => {
+      onSelectDay(day);
+    },
+    [onSelectDay]
+  );
+
   return (
     <section
       className="mt-6 w-full max-w-md"
@@ -66,7 +73,7 @@ const Forecast: React.FC<ForecastProps> = memo(({ title, data, onSelectDay }) =>
             key={d.date}
             data={d}
             isHourly={isHourly}
-            onSelectDay={onSelectDay}
+            onSelectDay={stableOnSelectDay}
           />
         ))}
       </ul>
