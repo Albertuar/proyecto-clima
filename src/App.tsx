@@ -3,7 +3,7 @@ import Inputs from "./components/Inputs";
 import TopButtons from "./components/TopButtons";
 import TimeAndLocation from "./components/TimeAndLocation";
 import TempAndDetails from "./components/TempAndDetails";
-import Forecast, { ForecastData } from "./components/Forecast";
+import Forecast from "./components/Forecast";
 import getFormattedWeatherData from "./services/weatherService";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -60,6 +60,7 @@ const App = () => {
       const data = await getFormattedWeatherData({ ...query, units });
       setWeather(data);
       toast.success(`Clima obtenido para ${data.name}, ${data.country}`);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       toast.error("Error al obtener el clima.");
     }
@@ -119,7 +120,7 @@ const App = () => {
       : "from-yellow-600 to-orange-700";
   }, [weather, units]);
 
-  const handleSelectHourlyDay = useCallback((day: ForecastData) => {
+  const handleSelectHourlyDay = useCallback(() => {
     // Handle the selection of an hourly day if needed
   }, []);
 

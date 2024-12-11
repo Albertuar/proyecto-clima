@@ -48,9 +48,7 @@ const Forecast: React.FC<ForecastProps> = memo(({ title, data, onSelectDay }) =>
   );
 
   const stableOnSelectDay = React.useCallback(
-    (day: string) => {
-      onSelectDay(day);
-    },
+    (day: string) => onSelectDay(day),
     [onSelectDay]
   );
 
